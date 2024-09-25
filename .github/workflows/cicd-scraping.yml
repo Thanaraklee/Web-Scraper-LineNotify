@@ -1,0 +1,117 @@
+name: CI/CD Scraping Workflow
+on:
+  # push:
+  #   branches: ["main"]
+  schedule:
+    - cron: "0 */2 * * *"
+
+jobs:
+  Code-Scaning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bandit scaning
+        uses: mdegis/bandit-action@v1.0
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: "."
+          level: high
+          confidence: high
+          exit_zero: true
+
+  Check-Version-Python:
+    runs-on: ubuntu-latest
+    needs: Code-Scaning
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
+
+  Web-Scraping:
+    runs-on: ubuntu-latest
+    needs: Check-Version-Python
+    outputs:
+      title_1: ${{ steps.scrap.outputs.TITLE_1 }}
+      title_2: ${{ steps.scrap.outputs.TITLE_2 }}
+      title_3: ${{ steps.scrap.outputs.TITLE_3 }}
+      title_4: ${{ steps.scrap.outputs.TITLE_4 }}
+      title_5: ${{ steps.scrap.outputs.TITLE_5 }}
+
+      title_link_1: ${{ steps.scrap.outputs.TITLE_LINK_1 }}
+      title_link_2: ${{ steps.scrap.outputs.TITLE_LINK_2 }}
+      title_link_3: ${{ steps.scrap.outputs.TITLE_LINK_3 }}
+      title_link_4: ${{ steps.scrap.outputs.TITLE_LINK_4 }}
+      title_link_5: ${{ steps.scrap.outputs.TITLE_LINK_5 }}
+
+      subtitle_1: ${{ steps.scrap.outputs.SUBTITLE_1 }}
+      subtitle_2: ${{ steps.scrap.outputs.SUBTITLE_2 }}
+      subtitle_3: ${{ steps.scrap.outputs.SUBTITLE_3 }}
+      subtitle_4: ${{ steps.scrap.outputs.SUBTITLE_4 }}
+      subtitle_5: ${{ steps.scrap.outputs.SUBTITLE_5 }}
+
+      comment_link_1: ${{ steps.scrap.outputs.COMMENT_LINK_1 }}
+      comment_link_2: ${{ steps.scrap.outputs.COMMENT_LINK_2 }}
+      comment_link_3: ${{ steps.scrap.outputs.COMMENT_LINK_3 }}
+      comment_link_4: ${{ steps.scrap.outputs.COMMENT_LINK_4 }}
+      comment_link_5: ${{ steps.scrap.outputs.COMMENT_LINK_5 }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install library
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run Scraping!
+        id: scrap
+        env:
+          URL: ${{ secrets.URL }}
+        run: |
+          python github_output.py
+  
+  Line-Noti:
+    runs-on: ubuntu-latest
+    needs: Web-Scraping
+    steps:
+      - name: Testing echo result job 1
+        run: |
+          echo ${{ needs.Web-Scraping.outputs.title_1 }}
+      - name: Notification
+        uses: snow-actions/line-notify@v1.0.0
+        with: 
+          access_token: ${{ secrets.LINE_ACCESS_TOKEN_BANK }}
+          message: |
+            ✨✨
+            1. ${{ needs.Web-Scraping.outputs.title_1 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_1 }} (${{ needs.Web-Scraping.outputs.comment_link_1 }})
+            
+            2. ${{ needs.Web-Scraping.outputs.title_2 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_2 }} (${{ needs.Web-Scraping.outputs.comment_link_2 }})
+            
+            3. ${{ needs.Web-Scraping.outputs.title_3 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_3 }} (${{ needs.Web-Scraping.outputs.comment_link_3 }})
+            
+            4. ${{ needs.Web-Scraping.outputs.title_4 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_4 }} (${{ needs.Web-Scraping.outputs.comment_link_4 }})
+            
+            5. ${{ needs.Web-Scraping.outputs.title_5 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_5 }} (${{ needs.Web-Scraping.outputs.comment_link_5 }})
