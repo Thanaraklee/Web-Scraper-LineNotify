@@ -94,8 +94,8 @@ jobs:
     needs: Web-Scraping
     strategy:
       matrix:
-        account_name: ['Bank', 'Gun']
-        access_token: [${{ secrets.LINE_ACCESS_TOKEN_BANK }}, ${{ secrets.LINE_ACCESS_TOKEN_GUN }}]
+        account_name: ["Bank", "Gun"]
+        access_token: ["${{ secrets.LINE_ACCESS_TOKEN_BANK }}", "${{ secrets.LINE_ACCESS_TOKEN_GUN }}"]
     steps:
       - name: Testing echo result job 1
         run: |
