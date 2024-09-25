@@ -92,20 +92,36 @@ jobs:
   Line-Noti:
     runs-on: ubuntu-latest
     needs: Web-Scraping
-    strategy:
-      matrix:
-        access_token:
-          - ${{ secrets.LINE_ACCESS_TOKEN_BANK}}
-          - ${{ secrets.LINE_ACCESS_TOKEN_GUN}}
     steps:
       - name: Testing echo result job 1
         run: |
           echo "${{ needs.Web-Scraping.outputs.title_1 }}"
 
-      - name: Notification
+      - name: Notification Bank
         uses: snow-actions/line-notify@v1.0.0
         with: 
-          access_token: ${{ secrets.LINE_ACCESS_TOKEN_BOT }}
+          access_token: ${{ secrets.LINE_ACCESS_TOKEN_BANK }}
+          message: |
+            ✨✨
+            1. ${{ needs.Web-Scraping.outputs.title_1 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_1 }} (${{ needs.Web-Scraping.outputs.comment_link_1 }})
+            
+            2. ${{ needs.Web-Scraping.outputs.title_2 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_2 }} (${{ needs.Web-Scraping.outputs.comment_link_2 }})
+            
+            3. ${{ needs.Web-Scraping.outputs.title_3 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_3 }} (${{ needs.Web-Scraping.outputs.comment_link_3 }})
+            
+            4. ${{ needs.Web-Scraping.outputs.title_4 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_4 }} (${{ needs.Web-Scraping.outputs.comment_link_4 }})
+            
+            5. ${{ needs.Web-Scraping.outputs.title_5 }}
+                ${{ needs.Web-Scraping.outputs.subtitle_5 }} (${{ needs.Web-Scraping.outputs.comment_link_5 }})
+
+      - name: Notification Gun
+        uses: snow-actions/line-notify@v1.0.0
+        with: 
+          access_token: ${{ secrets.LINE_ACCESS_TOKEN_GUN }}
           message: |
             ✨✨
             1. ${{ needs.Web-Scraping.outputs.title_1 }}
