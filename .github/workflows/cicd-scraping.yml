@@ -92,14 +92,19 @@ jobs:
   Line-Noti:
     runs-on: ubuntu-latest
     needs: Web-Scraping
+    strategy:
+      matrix:
+        account_name: ['Bank', 'Gun']
+        access_token: [${{ secrets.LINE_ACCESS_TOKEN_BANK }}, ${{ secrets.LINE_ACCESS_TOKEN_GUN }}]
     steps:
       - name: Testing echo result job 1
         run: |
           echo "${{ needs.Web-Scraping.outputs.title_1 }}"
-      - name: Notification
+
+      - name: Notification ${{ matrix.account_name}}
         uses: snow-actions/line-notify@v1.0.0
         with: 
-          access_token: ${{ secrets.LINE_ACCESS_TOKEN_BANK }}
+          access_token: ${{ matrix.access_token }}
           message: |
             ✨✨
             1. ${{ needs.Web-Scraping.outputs.title_1 }}
