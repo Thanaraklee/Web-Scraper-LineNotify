@@ -1,7 +1,7 @@
 name: CI/CD Scraping Workflow
 on:
-  # push:
-  #   branches: ["main"]
+  push:
+    branches: ["main"]
   schedule:
     - cron: "0 */2 * * *"
 
@@ -74,7 +74,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install library
         run: |
@@ -86,6 +86,7 @@ jobs:
         env:
           URL: ${{ secrets.URL }}
         run: |
+          python scrap.py
           python github_output.py
   
   Line-Noti:
